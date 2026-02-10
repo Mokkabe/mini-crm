@@ -67,6 +67,23 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
+// ======================
+// Leads Endpoint (read-only demo)
+// ======================
+
+app.MapGet("/api/leads", () =>
+{
+    var leads = new[]
+    {
+        new { id = 1, name = "Max Mustermann", email = "max@example.com" },
+        new { id = 2, name = "Erika Musterfrau", email = "erika@example.com" },
+    };
+
+    return Results.Ok(leads);
+})
+.WithName("GetLeads");
+
+
 app.Run();
 
 // ======================
