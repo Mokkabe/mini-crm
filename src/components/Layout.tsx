@@ -1,7 +1,7 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom"
 
-const navLink =
-  "rounded-md px-3 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white";
+const baseLink =
+  "rounded-md px-3 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white"
 
 export default function Layout() {
   return (
@@ -11,21 +11,50 @@ export default function Layout() {
           <span className="text-lg font-semibold tracking-tight">mini-crm</span>
 
           <nav className="flex items-center gap-2">
-            <NavLink to="/" end className={navLink}>
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `${baseLink} ${isActive ? "bg-white/10 text-white" : ""}`
+              }
+            >
               Home
             </NavLink>
-            <NavLink to="/dashboard" className={navLink}>
+
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                `${baseLink} ${isActive ? "bg-white/10 text-white" : ""}`
+              }
+            >
               Dashboard
             </NavLink>
-            <NavLink to="/leads" className={navLink}>
+
+            <NavLink
+              to="/leads"
+              className={({ isActive }) =>
+                `${baseLink} ${isActive ? "bg-white/10 text-white" : ""}`
+              }
+            >
               Leads
             </NavLink>
-            <NavLink to="/signin" className={navLink}>
+
+            <NavLink
+              to="/signin"
+              className={({ isActive }) =>
+                `${baseLink} ${isActive ? "bg-white/10 text-white" : ""}`
+              }
+            >
               Sign In
             </NavLink>
+
             <NavLink
               to="/signup"
-              className="ml-2 rounded-md bg-white px-3 py-2 text-sm font-medium text-black hover:bg-white/90"
+              className={({ isActive }) =>
+                `ml-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-white/90 ${
+                  isActive ? "bg-white text-black" : "bg-white text-black"
+                }`
+              }
             >
               Sign Up
             </NavLink>
@@ -37,5 +66,5 @@ export default function Layout() {
         <Outlet />
       </main>
     </div>
-  );
+  )
 }
