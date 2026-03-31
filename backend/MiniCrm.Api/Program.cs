@@ -1,11 +1,25 @@
+using Microsoft.EntityFrameworkCore;
+using MiniCrm.Api.Data;
+using MiniCrm.Api.Models;  // ← neu
+
 var builder = WebApplication.CreateBuilder(args);
 
-// ======================
-// Services
-// ======================
-
-// OpenAPI / Swagger
 builder.Services.AddOpenApi();
+
+// EF Core + SQLite
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=minicrm.db"));
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendDev", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 
 var app = builder.Build();
 
@@ -18,7 +32,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+
+app.UseCors("FrontendDev");
+
 
 // ======================
 // Root Endpoint
@@ -71,17 +88,31 @@ app.MapGet("/weatherforecast", () =>
 // Leads Endpoint (read-only demo)
 // ======================
 
-app.MapGet("/api/leads", () =>
+// GET alle Leads
+app.MapGet("/api/leads", async (AppDbContext db) =>
 {
-    var leads = new[]
-    {
-        new { id = 1, name = "Max Mustermann", email = "max@example.com" },
-        new { id = 2, name = "Erika Musterfrau", email = "erika@example.com" },
-    };
-
+    var leads = await db.Leads.ToListAsync();
     return Results.Ok(leads);
-})
-.WithName("GetLeads");
+});
+
+// POST neuen Lead erstellen
+app.MapPost("/api/leads", async (AppDbContext db, Lead lead) =>
+{
+    db.Leads.Add(lead);
+    await db.SaveChangesAsync();
+    return Results.Created($"/api/leads/{lead.Id}", lead);
+});
+
+// DELETE Lead löschen
+app.MapDelete("/api/leads/{id}", async (AppDbContext db, int id) =>
+{
+    var lead = await db.Leads.FindAsync(id);
+    if (lead is null) return Results.NotFound();
+
+    db.Leads.Remove(lead);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
 
 
 app.Run();
